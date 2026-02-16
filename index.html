@@ -111,6 +111,11 @@
             return;
         }
 
+        if (ant < 0 || ant > 100) {
+            alert("Der Anteil muss zwischen 0 und 100 liegen!");
+            return;
+        }
+
         // PDF Inhalt schreiben
         doc.setFontSize(18);
         doc.text("Vertragsdaten-Zusammenfassung", 20, 20);
