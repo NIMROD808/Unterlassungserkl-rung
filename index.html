@@ -47,19 +47,19 @@
         <label>Mandant auswählen:</label>
         <div class="mandant-row">
             <select id="mandant"></select>
-            <button class="btn-settings" onclick="toggleModal(true)" title="Mandanten verwalten">⚙️</button>
+            <button class="btn-settings" onclick="toggleModal(true)" title="Mandanten verwalten" placeholder="Name des Mandanten">⚙️</button>
         </div>
     </div>
 
-    <div class="form-group"><label>Name der Gegenseite:</label><input type="text" id="gegenseite"></div>
-    <div class="form-group"><label>Aktenzeichen:</label><input type="text" id="aktenzeichen"></div>
+    <div class="form-group"><label>Name der Gegenseite:</label><input type="text" id="gegenseite" placeholder="Name des Gegners"></div>
+    <div class="form-group"><label>Aktenzeichen:</label><input type="text" id="aktenzeichen" placeholder="z.B. 123/24"></div>
     <div class="form-group"><label>Frist (Tage bis Ablauf):</label><input type="number" id="frist" placeholder="z.B. 14"></div>
-    <div class="form-group"><label>Adresse (Mandant):</label><input type="text" id="adresse_mandant"></div>
-    <div class="form-group"><label>Adresse (Gegenseite):</label><input type="text" id="adresse_gegenseite"></div>
-    <div class="form-group"><label>Name des Tracks:</label><input type="text" id="name_des_tracks"></div>
-    <div class="form-group"><label>Künstler:</label><input type="text" id="künstler"></div>
+    <div class="form-group"><label>Adresse (Mandant):</label><input type="text" id="adresse_mandant" placeholder="Straße, PLZ, Ort"></div>
+    <div class="form-group"><label>Adresse (Gegenseite):</label><input type="text" id="adresse_gegenseite" placeholder="Straße, PLZ, Ort"></div>
+    <div class="form-group"><label>Name des Tracks:</label><input type="text" id="name_des_tracks" placeholder="Name des Tracks"></div>
+    <div class="form-group"><label>Künstler:</label><input type="text" id="künstler" ></div>
     <div class="form-group"><label>GEMA ID:</label><input type="text" id="gema_id"></div>
-    <div class="form-group"><label>Link:</label><input type="url" id="link"></div>
+    <div class="form-group"><label>Link:</label><input type="url" id="link" placeholder="https://..."></div>
     <div class="form-group"><label>Anteil der Mandantin (%):</label>
         <input type="number" id="anteil" min="0" max="100" oninput="if(value > 100) value = 100; if(value < 0) value = 0;">
     </div>
