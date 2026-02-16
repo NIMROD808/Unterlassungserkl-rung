@@ -110,8 +110,8 @@
         const link = document.getElementById('link').value;
         const ant = document.getElementById('anteil').value;
 
-        if(!m || !g) {
-            alert("Bitte Mandant und Gegenseite ausfüllen!");
+        if(!m || !g || !az || !frist || !adr || !link || !ant) {
+            alert("Bitte alle Felder ausfüllen!");
             return;
         }
 
