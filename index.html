@@ -3,50 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vertrags-Generator PDF</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f4f7f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 500px;
-        }
+    <title>Vertrags-Generator DOCX</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.2/docxtemplater.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+<style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
         h3 { text-align: center; color: #333; margin-bottom: 20px; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 14px; }
-        input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            background-color: #28a745; /* Grün für Download */
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        button:hover { background-color: #218838; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        
+        /* **NEU: Styles für Mandanten-Management** */
+        .mandant-mgmt { display: flex; gap: 5px; margin-bottom: 5px; }
+        .mandant-mgmt input { flex-grow: 1; }
+        .btn-add { background-color: #28a745; color: white; border: none; border-radius: 6px; padding: 0 15px; cursor: pointer; font-weight: bold; }
+        .select-row { display: flex; gap: 5px; }
+        .btn-del { background-color: #dc3545; color: white; border: none; border-radius: 6px; padding: 0 15px; cursor: pointer; font-weight: bold; }
+
+        button.main-btn { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        button.main-btn:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
@@ -55,22 +33,25 @@
     <h3>Vertragsdaten eingeben</h3>
 
     <div class="form-group">
-        <label>Name des Mandanten:</label>
-        <select id="mandant">
-            <option value="Mandant 1">Mandant 1</option>
-            <option value="Mandant 2">Mandant 2</option>
-            <option value="Mandant 3">Mandant 3</option>
-        </select>
+        <label>Mandanten verwalten:</label>
+        <div class="mandant-mgmt">
+            <input type="text" id="new_mandant_name" placeholder="Neuer Mandant Name">
+            <button class="btn-add" onclick="addMandant()">+</button>
+        </div>
+        <div class="select-row">
+            <select id="mandant"></select>
+            <button class="btn-del" onclick="deleteMandant()">-</button>
+        </div>
     </div>
 
     <div class="form-group">
         <label>Name der Gegenseite:</label>
-        <input type="text" id="gegenseite" placeholder="Name des Gegners">
+        <input type="text" id="gegenseite">
     </div>
 
     <div class="form-group">
         <label>Aktenzeichen:</label>
-        <input type="text" id="aktenzeichen" placeholder="z.B. 123/24">
+        <input type="text" id="aktenzeichen">
     </div>
 
     <div class="form-group">
@@ -78,90 +59,124 @@
         <input type="number" id="frist" placeholder="z.B. 14">
     </div>
 
-    
     <div class="form-group">
         <label>Adresse (Mandant):</label>
-        <input type="text" id="adresse_mandant" placeholder="Straße, PLZ, Ort">
+        <input type="text" id="adresse_mandant">
     </div>
 
     <div class="form-group">
         <label>Adresse (Gegenseite):</label>
-        <input type="text" id="adresse_gegenseite" placeholder="Straße, PLZ, Ort">
+        <input type="text" id="adresse_gegenseite">
     </div>
 
     <div class="form-group">
-        <label>Name des Tracks :</label>
-        <input type="text" id="name_des_tracks" placeholder="Straße, PLZ, Ort">
+        <label>Name des Tracks:</label>
+        <input type="text" id="name_des_tracks">
     </div>
+
     <div class="form-group">
-        <label>Künstler :</label>
-        <input type="text" id="künstler" placeholder="Straße, PLZ, Ort">
+        <label>Künstler:</label>
+        <input type="text" id="künstler">
     </div>
+
     <div class="form-group">
         <label>GEMA ID:</label>
-        <input type="text" id="gema_id" placeholder="Straße, PLZ, Ort">
+        <input type="text" id="gema_id">
     </div>
 
     <div class="form-group">
         <label>Link:</label>
-        <input type="url" id="link" placeholder="https://...">
+        <input type="url" id="link">
     </div>
 
     <div class="form-group">
         <label>Anteil der Mandantin (%):</label>
-        <input type="number" id="anteil" placeholder="50" min="0" max="100" oninput="if(value > 100) value = 100; if(value < 0) value = 0;">
+        <input type="number" id="anteil" min="0" max="100" oninput="if(value > 100) value = 100; if(value < 0) value = 0;">
     </div>
 
-    <button type="button" onclick="downloadPDF()">PDF erstellen & herunterladen</button>
+    <button type="button" onclick="generateDoc()">Word-Dokument erstellen</button>
 </div>
 
 <script>
-    async function downloadPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+    let mandanten = JSON.parse(localStorage.getItem('mandanten')) || ["Mandant 1", "Mandant 2"];
 
-        // Daten aus den Feldern holen
-        const m = document.getElementById('mandant').value;
-        const g = document.getElementById('gegenseite').value;
-        const az = document.getElementById('aktenzeichen').value;
-        const frist = document.getElementById('frist').value;
-        const adr_m = document.getElementById('adresse_mandant').value;
-        const adr_g = document.getElementById('adresse_gegenseite').value;
-        const name_des_track = document.getElementById('name_des_tracks').value;
-        const künstler = document.getElementById('künstler').value;
-        const gema_id = document.getElementById('gema_id').value;
-        const link = document.getElementById('link').value;
-        const ant = document.getElementById('anteil').value;
+    function updateDropdown() {
+        const select = document.getElementById('mandant');
+        select.innerHTML = '';
+        mandanten.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m;
+            opt.innerHTML = m;
+            select.appendChild(opt);
+        });
+        localStorage.setItem('mandanten', JSON.stringify(mandanten));
+    }
 
-        if(!m || !g || !az || !frist || !link || !ant) {
-            alert("Bitte alle Felder ausfüllen!");
-            return;
+    function addMandant() {
+        const name = document.getElementById('new_mandant_name').value;
+        if(name) {
+            mandanten.push(name);
+            document.getElementById('new_mandant_name').value = '';
+            updateDropdown();
         }
+    }
 
-        if (ant < 0 || ant > 100) {
-            alert("Der Anteil muss zwischen 0 und 100 liegen!");
-            return;
+    function deleteMandant() {
+        const select = document.getElementById('mandant');
+        const selectedMandant = select.value;
+        mandanten = mandanten.filter(m => m !== selectedMandant);
+        updateDropdown();
+    }
+
+    // Initiales Laden
+    updateDropdown();
+
+
+    async function generateDoc() {
+        // 1. Daten holen
+        const tage = parseInt(document.getElementById('frist').value) || 0;
+        
+        // **BERECHNUNG: Fristdatum (Heute + X Tage)**
+        const fDatum = new Date();
+        fDatum.setDate(fDatum.getDate() + tage);
+        const datumString = fDatum.toLocaleDateString('de-DE');
+
+        const werte = {
+            mandant: document.getElementById('mandant').value,
+            gegenseite: document.getElementById('gegenseite').value,
+            aktenzeichen: document.getElementById('aktenzeichen').value,
+            frist_tage: tage,
+            datum: datumString, // Das ist dein {{datum}} für Word
+            adresse_m: document.getElementById('adresse_mandant').value,
+            adresse_g: document.getElementById('adresse_gegenseite').value,
+            track: document.getElementById('name_des_tracks').value,
+            kuenstler: document.getElementById('künstler').value,
+            gema: document.getElementById('gema_id').value,
+            link: document.getElementById('link').value,
+            anteil: document.getElementById('anteil').value,
+            heute: new Date().toLocaleDateString('de-DE')
+        };
+
+        // 2. Word Vorlage laden
+        try {
+            const response = await fetch('vorlage.docx');
+            const content = await response.arrayBuffer();
+            const zip = new PizZip(content);
+            const doc = new window.docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
+
+            // 3. Daten in Word-Vorlage einfügen
+            doc.render(werte);
+
+            // 4. Datei ausgeben
+            const out = doc.getZip().generate({
+                type: "blob",
+                mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            });
+            saveAs(out, `Vertrag_${werte.mandant}.docx`);
+        } catch (error) {
+            alert("Fehler: Vorlage.docx nicht gefunden!");
+            console.error(error);
         }
-
-        // PDF Inhalt schreiben
-        doc.setFontSize(18);
-        doc.text("Vertragsdaten-Zusammenfassung", 20, 20);
-        
-        doc.setFontSize(12);
-        doc.text(`Datum: ${new Date().toLocaleDateString('de-DE')}`, 20, 35);
-        doc.text(`--------------------------------------------------`, 20, 40);
-        
-        doc.text(`Mandant: ${m}`, 20, 50);
-        doc.text(`Gegenseite: ${g}`, 20, 60);
-        doc.text(`Adresse (Mandant): ${adr_m || 'k.A.'}`, 20, 70);
-        doc.text(`Adresse (Gegenseite): ${adr_g || 'k.A.'}`, 20, 70);
-        doc.text(`Aktenzeichen: ${az || 'n.V.'}`, 20, 80);
-        doc.text(`Frist: ${frist || 'nicht gesetzt'}`, 20, 90);
-        doc.text(`Anteil am Werk: ${ant || '0'}%`, 20, 100);
-        doc.text(`Link: ${link || 'kein Link'}`, 20, 110);
-
-        // Download auslösen
-        doc.save(`Vertrag_${m.replace(/\s+/g, '_')}.pdf`);
     }
 </script>
 
