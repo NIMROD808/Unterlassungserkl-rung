@@ -3,120 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vertrags-Generator</title>
+    <title>Vertrags-Generator PDF</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        /* Das Design (CSS) */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             background-color: #f4f7f9;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
         }
-
         .container {
-            background-color: white;
+            background: white;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
         }
-
-        h3 {
-            margin-top: 0;
-            color: #333;
-            text-align: center;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #555;
-            font-size: 14px;
-        }
-
-        input, select {
+        h3 { text-align: center; color: #333; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 14px; }
+        input {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 6px;
-            box-sizing: border-box; /* Wichtig für die Breite */
-            font-size: 16px;
+            box-sizing: border-box;
         }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
-        }
-
         button {
             width: 100%;
-            padding: 12px;
-            background-color: #007bff;
+            padding: 14px;
+            background-color: #28a745; /* Grün für Download */
             color: white;
             border: none;
             border-radius: 6px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s;
+            margin-top: 20px;
         }
-
-        button:hover {
-            background-color: #0056b3;
-        }
+        button:hover { background-color: #218838; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h3>Vertragsdaten eingeben</h3>
+<div class="container">
+    <h3>Vertragsdaten eingeben</h3>
 
-        <label for="mandant">Name des Mandanten:</label>
+    <div class="form-group">
+        <label>Name des Mandanten:</label>
         <input type="text" id="mandant" placeholder="Vor- und Nachname">
-
-        <label for="gegenseite">Name der Gegenseite:</label>
-        <input type="text" id="gegenseite" placeholder="Gegner Name">
-
-        <label for="extras">Extras auswählen:</label>
-        <select id="extras">
-            <option value="standard">Nur Standard-Vertrag</option>
-            <option value="haftung">Extra: Erweiterte Haftung</option>
-            <option value="eilig">Extra: Express-Bearbeitung</option>
-        </select>
-
-        <button type="button" onclick="erzeugeVertrag()">Vertrag erstellen</button>
-        
-        <div id="output" style="margin-top: 20px; white-space: pre-wrap; font-size: 14px; color: #333;"></div>
     </div>
 
-    <script>
-        // Die Logik (JavaScript)
-        function erzeugeVertrag() {
-            const mandant = document.getElementById('mandant').value;
-            const gegenseite = document.getElementById('gegenseite').value;
-            const extra = document.getElementById('extras').value;
+    <div class="form-group">
+        <label>Name der Gegenseite:</label>
+        <input type="text" id="gegenseite" placeholder="Name des Gegners">
+    </div>
 
-            if(!mandant || !gegenseite) {
-                alert("Bitte fülle alle Namen aus!");
-                return;
-            }
+    <div class="form-group">
+        <label>Aktenzeichen:</label>
+        <input type="text" id="aktenzeichen" placeholder="z.B. 123/24">
+    </div>
 
-            let extraText = "";
-            if(extra === "haftung") extraText = "\nZusatz: Die Haftung wird hiermit erweitert.";
-            if(extra === "eilig") extraText = "\nZusatz: Diese Angelegenheit wird mit Priorität behandelt.";
+    <div class="form-group">
+        <label>Frist bis:</label>
+        <input type="date" id="frist">
+    </div>
 
-            const vertrag = `VERTRAGSENTWURF\n\nZwischen Herrn/Frau ${mandant} und der Gegenseite ${gegenseite} wird folgende Vereinbarung getroffen... ${extraText}`;
-            
-            document.getElementById('output').innerText = vertrag;
+    <div class="form-group">
+        <label>Adresse (Gegenseite):</label>
+        <input type="text" id="adresse" placeholder="Straße, PLZ, Ort">
+    </div>
+
+    <div class="form-group">
+        <label>Link:</label>
+        <input type="url" id="link" placeholder="https://...">
+    </div>
+
+    <div class="form-group">
+        <label>Anteil der Mandantin (%):</label>
+        <input type="number" id="anteil" placeholder="50">
+    </div>
+
+    <button type="button" onclick="downloadPDF()">PDF erstellen & herunterladen</button>
+</div>
+
+<script>
+    async function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Daten aus den Feldern holen
+        const m = document.getElementById('mandant').value;
+        const g = document.getElementById('gegenseite').value;
+        const az = document.getElementById('aktenzeichen').value;
+        const frist = document.getElementById('frist').value;
+        const adr = document.getElementById('adresse').value;
+        const link = document.getElementById('link').value;
+        const ant = document.getElementById('anteil').value;
+
+        if(!m || !g) {
+            alert("Bitte Mandant und Gegenseite ausfüllen!");
+            return;
         }
-    </script>
+
+        // PDF Inhalt schreiben
+        doc.setFontSize(18);
+        doc.text("Vertragsdaten-Zusammenfassung", 20, 20);
+        
+        doc.setFontSize(12);
+        doc.text(`Datum: ${new Date().toLocaleDateString('de-DE')}`, 20, 35);
+        doc.text(`--------------------------------------------------`, 20, 40);
+        
+        doc.text(`Mandant: ${m}`, 20, 50);
+        doc.text(`Gegenseite: ${g}`, 20, 60);
+        doc.text(`Adresse: ${adr || 'k.A.'}`, 20, 70);
+        doc.text(`Aktenzeichen: ${az || 'n.V.'}`, 20, 80);
+        doc.text(`Frist: ${frist || 'nicht gesetzt'}`, 20, 90);
+        doc.text(`Anteil am Werk: ${ant || '0'}%`, 20, 100);
+        doc.text(`Link: ${link || 'kein Link'}`, 20, 110);
+
+        // Download auslösen
+        doc.save(`Vertrag_${m.replace(/\s+/g, '_')}.pdf`);
+    }
+</script>
 
 </body>
 </html>
