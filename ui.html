@@ -1,26 +1,122 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vertrags-Generator</title>
+    <style>
+        /* Das Design (CSS) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h3 {
+            margin-top: 0;
+            color: #333;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box; /* Wichtig für die Breite */
+            font-size: 16px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
 
-    <h3>Vertragsdaten eingeben</h3>
+    <div class="container">
+        <h3>Vertragsdaten eingeben</h3>
 
-    <label>Name des Mandanten:</label><br>
-    <input type="text" id="mandant" placeholder="Vor- und Nachname"><br><br>
+        <label for="mandant">Name des Mandanten:</label>
+        <input type="text" id="mandant" placeholder="Vor- und Nachname">
 
-    <label>Name der Gegenseite:</label><br>
-    <input type="text" id="gegenseite" placeholder="Gegner Name"><br><br>
+        <label for="gegenseite">Name der Gegenseite:</label>
+        <input type="text" id="gegenseite" placeholder="Gegner Name">
 
-    <label>Extras auswählen:</label><br>
-    <select id="extras">
-        <option value="standard">Nur Standard-Vertrag</option>
-        <option value="haftung">Extra: Erweiterte Haftung</option>
-        <option value="eilig">Extra: Express-Bearbeitung</option>
-    </select><br><br>
+        <label for="extras">Extras auswählen:</label>
+        <select id="extras">
+            <option value="standard">Nur Standard-Vertrag</option>
+            <option value="haftung">Extra: Erweiterte Haftung</option>
+            <option value="eilig">Extra: Express-Bearbeitung</option>
+        </select>
 
-    <button type="button" onclick="alert('Daten gesendet!')">Vertrag erstellen</button>
+        <button type="button" onclick="erzeugeVertrag()">Vertrag erstellen</button>
+        
+        <div id="output" style="margin-top: 20px; white-space: pre-wrap; font-size: 14px; color: #333;"></div>
+    </div>
+
+    <script>
+        // Die Logik (JavaScript)
+        function erzeugeVertrag() {
+            const mandant = document.getElementById('mandant').value;
+            const gegenseite = document.getElementById('gegenseite').value;
+            const extra = document.getElementById('extras').value;
+
+            if(!mandant || !gegenseite) {
+                alert("Bitte fülle alle Namen aus!");
+                return;
+            }
+
+            let extraText = "";
+            if(extra === "haftung") extraText = "\nZusatz: Die Haftung wird hiermit erweitert.";
+            if(extra === "eilig") extraText = "\nZusatz: Diese Angelegenheit wird mit Priorität behandelt.";
+
+            const vertrag = `VERTRAGSENTWURF\n\nZwischen Herrn/Frau ${mandant} und der Gegenseite ${gegenseite} wird folgende Vereinbarung getroffen... ${extraText}`;
+            
+            document.getElementById('output').innerText = vertrag;
+        }
+    </script>
 
 </body>
 </html>
