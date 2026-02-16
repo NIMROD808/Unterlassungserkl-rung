@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vertrags-Generator DOCX</title>
+    <title>Vertrags-Generator Pro</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.2/docxtemplater.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     
-<style>
+    <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
         .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
         h3 { text-align: center; color: #333; margin-bottom: 20px; }
@@ -16,13 +16,24 @@
         label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 14px; }
         input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
         
-        /* **NEU: Styles für Mandanten-Management** */
-        .mandant-mgmt { display: flex; gap: 5px; margin-bottom: 5px; }
-        .mandant-mgmt input { flex-grow: 1; }
-        .btn-add { background-color: #28a745; color: white; border: none; border-radius: 6px; padding: 0 15px; cursor: pointer; font-weight: bold; }
-        .select-row { display: flex; gap: 5px; }
-        .btn-del { background-color: #dc3545; color: white; border: none; border-radius: 6px; padding: 0 15px; cursor: pointer; font-weight: bold; }
+        /* Mandanten-Zeile mit Settings-Button */
+        .mandant-row { display: flex; gap: 10px; align-items: center; }
+        .btn-settings { background: none; border: none; font-size: 20px; cursor: pointer; padding: 5px; color: #666; transition: transform 0.3s; }
+        .btn-settings:hover { transform: rotate(90deg); color: #007bff; }
 
+        /* Modal / Pop-up Styles */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 10% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; position: relative; }
+        .close-modal { position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #999; }
+        
+        .mgmt-list { list-style: none; padding: 0; margin-top: 20px; max-height: 200px; overflow-y: auto; border: 1px solid #eee; border-radius: 6px; }
+        .mgmt-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
+        .mgmt-item:last-child { border-bottom: none; }
+        .btn-mini-del { background-color: #ff4d4d; color: white; border: none; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 12px; }
+        
+        .mgmt-add-row { display: flex; gap: 5px; margin-bottom: 15px; }
+
+        /* Haupt-Button */
         button.main-btn { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; }
         button.main-btn:hover { background-color: #0056b3; }
     </style>
@@ -33,120 +44,118 @@
     <h3>Vertragsdaten eingeben</h3>
 
     <div class="form-group">
-        <label>Mandanten verwalten:</label>
-        <div class="mandant-mgmt">
-            <input type="text" id="new_mandant_name" placeholder="Neuer Mandant Name">
-            <button class="btn-add" onclick="addMandant()">+</button>
-        </div>
-        <div class="select-row">
+        <label>Mandant auswählen:</label>
+        <div class="mandant-row">
             <select id="mandant"></select>
-            <button class="btn-del" onclick="deleteMandant()">-</button>
+            <button class="btn-settings" onclick="toggleModal(true)" title="Mandanten verwalten">⚙️</button>
         </div>
     </div>
 
-    <div class="form-group">
-        <label>Name der Gegenseite:</label>
-        <input type="text" id="gegenseite">
-    </div>
-
-    <div class="form-group">
-        <label>Aktenzeichen:</label>
-        <input type="text" id="aktenzeichen">
-    </div>
-
-    <div class="form-group">
-        <label>Frist (Tage bis Ablauf):</label>
-        <input type="number" id="frist" placeholder="z.B. 14">
-    </div>
-
-    <div class="form-group">
-        <label>Adresse (Mandant):</label>
-        <input type="text" id="adresse_mandant">
-    </div>
-
-    <div class="form-group">
-        <label>Adresse (Gegenseite):</label>
-        <input type="text" id="adresse_gegenseite">
-    </div>
-
-    <div class="form-group">
-        <label>Name des Tracks:</label>
-        <input type="text" id="name_des_tracks">
-    </div>
-
-    <div class="form-group">
-        <label>Künstler:</label>
-        <input type="text" id="künstler">
-    </div>
-
-    <div class="form-group">
-        <label>GEMA ID:</label>
-        <input type="text" id="gema_id">
-    </div>
-
-    <div class="form-group">
-        <label>Link:</label>
-        <input type="url" id="link">
-    </div>
-
-    <div class="form-group">
-        <label>Anteil der Mandantin (%):</label>
+    <div class="form-group"><label>Name der Gegenseite:</label><input type="text" id="gegenseite"></div>
+    <div class="form-group"><label>Aktenzeichen:</label><input type="text" id="aktenzeichen"></div>
+    <div class="form-group"><label>Frist (Tage bis Ablauf):</label><input type="number" id="frist" placeholder="z.B. 14"></div>
+    <div class="form-group"><label>Adresse (Mandant):</label><input type="text" id="adresse_mandant"></div>
+    <div class="form-group"><label>Adresse (Gegenseite):</label><input type="text" id="adresse_gegenseite"></div>
+    <div class="form-group"><label>Name des Tracks:</label><input type="text" id="name_des_tracks"></div>
+    <div class="form-group"><label>Künstler:</label><input type="text" id="künstler"></div>
+    <div class="form-group"><label>GEMA ID:</label><input type="text" id="gema_id"></div>
+    <div class="form-group"><label>Link:</label><input type="url" id="link"></div>
+    <div class="form-group"><label>Anteil der Mandantin (%):</label>
         <input type="number" id="anteil" min="0" max="100" oninput="if(value > 100) value = 100; if(value < 0) value = 0;">
     </div>
 
-    <button type="button" onclick="generateDoc()">Word-Dokument erstellen</button>
+    <button class="main-btn" type="button" onclick="generateDoc()">Word-Dokument erstellen</button>
+</div>
+
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="toggleModal(false)">&times;</span>
+        <h4>Mandanten verwalten</h4>
+        
+        <div class="mgmt-add-row">
+            <input type="text" id="new_mandant_input" placeholder="Name eingeben...">
+            <button class="btn-settings" style="background:#28a745; color:white; border-radius:6px; font-size:16px; padding:0 15px;" onclick="addMandant()">+</button>
+        </div>
+
+        <ul id="mgmt_list" class="mgmt-list">
+            </ul>
+        
+        <button class="main-btn" onclick="toggleModal(false)" style="background-color:#6c757d;">Schließen</button>
+    </div>
 </div>
 
 <script>
+    // Mandanten laden oder Standardwerte setzen
     let mandanten = JSON.parse(localStorage.getItem('mandanten')) || ["Mandant 1", "Mandant 2"];
 
-    function updateDropdown() {
+    // Dropdown und Management-Liste aktualisieren
+    function refreshData() {
         const select = document.getElementById('mandant');
+        const list = document.getElementById('mgmt_list');
+        
+        // Dropdown leeren und füllen
         select.innerHTML = '';
         mandanten.forEach(m => {
-            const opt = document.createElement('option');
+            let opt = document.createElement('option');
             opt.value = m;
-            opt.innerHTML = m;
+            opt.textContent = m;
             select.appendChild(opt);
         });
+
+        // Mgmt-Liste leeren und füllen
+        list.innerHTML = '';
+        mandanten.forEach((m, index) => {
+            let li = document.createElement('li');
+            li.className = 'mgmt-item';
+            li.innerHTML = `<span>${m}</span> <button class="btn-mini-del" onclick="deleteMandant(${index})">Löschen</button>`;
+            list.appendChild(li);
+        });
+
+        // Speichern
         localStorage.setItem('mandanten', JSON.stringify(mandanten));
     }
 
+    function toggleModal(show) {
+        document.getElementById('settingsModal').style.display = show ? 'block' : 'none';
+    }
+
     function addMandant() {
-        const name = document.getElementById('new_mandant_name').value;
-        if(name) {
-            mandanten.push(name);
-            document.getElementById('new_mandant_name').value = '';
-            updateDropdown();
+        const input = document.getElementById('new_mandant_input');
+        if (input.value.trim() !== "") {
+            mandanten.push(input.value.trim());
+            input.value = "";
+            refreshData();
         }
     }
 
-    function deleteMandant() {
-        const select = document.getElementById('mandant');
-        const selectedMandant = select.value;
-        mandanten = mandanten.filter(m => m !== selectedMandant);
-        updateDropdown();
+    function deleteMandant(index) {
+        mandanten.splice(index, 1);
+        refreshData();
     }
 
-    // Initiales Laden
-    updateDropdown();
+    // Beim Start laden
+    refreshData();
 
-
+    // DOC GENERIERUNG
     async function generateDoc() {
-        // 1. Daten holen
+        const m = document.getElementById('mandant').value;
+        const g = document.getElementById('gegenseite').value;
+
+        if (!m || !g) {
+            alert("Bitte Mandant und Gegenseite wählen!");
+            return;
+        }
+
         const tage = parseInt(document.getElementById('frist').value) || 0;
-        
-        // **BERECHNUNG: Fristdatum (Heute + X Tage)**
         const fDatum = new Date();
         fDatum.setDate(fDatum.getDate() + tage);
-        const datumString = fDatum.toLocaleDateString('de-DE');
 
         const werte = {
-            mandant: document.getElementById('mandant').value,
-            gegenseite: document.getElementById('gegenseite').value,
+            mandant: m,
+            gegenseite: g,
             aktenzeichen: document.getElementById('aktenzeichen').value,
             frist_tage: tage,
-            datum: datumString, // Das ist dein {{datum}} für Word
+            datum: fDatum.toLocaleDateString('de-DE'),
             adresse_m: document.getElementById('adresse_mandant').value,
             adresse_g: document.getElementById('adresse_gegenseite').value,
             track: document.getElementById('name_des_tracks').value,
@@ -157,28 +166,26 @@
             heute: new Date().toLocaleDateString('de-DE')
         };
 
-        // 2. Word Vorlage laden
         try {
             const response = await fetch('vorlage.docx');
+            if (!response.ok) throw new Error("vorlage.docx nicht gefunden!");
+            
             const content = await response.arrayBuffer();
             const zip = new PizZip(content);
             const doc = new window.docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
 
-            // 3. Daten in Word-Vorlage einfügen
             doc.render(werte);
 
-            // 4. Datei ausgeben
             const out = doc.getZip().generate({
                 type: "blob",
                 mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             });
-            saveAs(out, `Vertrag_${werte.mandant}.docx`);
+
+            saveAs(out, `Vertrag_${m.replace(/\s+/g, '_')}.docx`);
         } catch (error) {
-            alert("Fehler: Vorlage.docx nicht gefunden!");
-            console.error(error);
+            alert("Fehler: " + error.message);
         }
     }
 </script>
-
 </body>
 </html>
