@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vertrags-Generator</title>
+</head>
+<body>
+
+    <h3>Vertragsdaten eingeben</h3>
+
+    <label>Name des Mandanten:</label><br>
+    <input type="text" id="mandant" placeholder="Vor- und Nachname"><br><br>
+
+    <label>Name der Gegenseite:</label><br>
+    <input type="text" id="gegenseite" placeholder="Gegner Name"><br><br>
+
+    <label>Extras auswählen:</label><br>
+    <select id="extras">
+        <option value="standard">Nur Standard-Vertrag</option>
+        <option value="haftung">Extra: Erweiterte Haftung</option>
+        <option value="eilig">Extra: Express-Bearbeitung</option>
+    </select><br><br>
+
+    <button type="button" onclick="alert('Daten gesendet!')">Vertrag erstellen</button>
+
+</body>
+</html>
