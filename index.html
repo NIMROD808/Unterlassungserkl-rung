@@ -78,9 +78,28 @@
         <input type="number" id="frist" placeholder="z.B. 14">
     </div>
 
+    
+    <div class="form-group">
+        <label>Adresse (Mandant):</label>
+        <input type="text" id="adresse_mandant" placeholder="Straße, PLZ, Ort">
+    </div>
+
     <div class="form-group">
         <label>Adresse (Gegenseite):</label>
-        <input type="text" id="adresse" placeholder="Straße, PLZ, Ort">
+        <input type="text" id="adresse_gegenseite" placeholder="Straße, PLZ, Ort">
+    </div>
+
+    <div class="form-group">
+        <label>Name des Tracks :</label>
+        <input type="text" id="name_des_tracks" placeholder="Straße, PLZ, Ort">
+    </div>
+    <div class="form-group">
+        <label>Künstler :</label>
+        <input type="text" id="künstler" placeholder="Straße, PLZ, Ort">
+    </div>
+    <div class="form-group">
+        <label>GEMA ID:</label>
+        <input type="text" id="gema_id" placeholder="Straße, PLZ, Ort">
     </div>
 
     <div class="form-group">
@@ -106,11 +125,15 @@
         const g = document.getElementById('gegenseite').value;
         const az = document.getElementById('aktenzeichen').value;
         const frist = document.getElementById('frist').value;
-        const adr = document.getElementById('adresse').value;
+        const adr_m = document.getElementById('adresse_mandant').value;
+        const adr_g = document.getElementById('adresse_gegenseite').value;
+        const name_des_track = document.getElementById('name_des_tracks').value;
+        const künstler = document.getElementById('künstler').value;
+        const gema_id = document.getElementById('gema_id').value;
         const link = document.getElementById('link').value;
         const ant = document.getElementById('anteil').value;
 
-        if(!m || !g || !az || !frist || !adr || !link || !ant) {
+        if(!m || !g || !az || !frist || !link || !ant) {
             alert("Bitte alle Felder ausfüllen!");
             return;
         }
@@ -130,7 +153,8 @@
         
         doc.text(`Mandant: ${m}`, 20, 50);
         doc.text(`Gegenseite: ${g}`, 20, 60);
-        doc.text(`Adresse: ${adr || 'k.A.'}`, 20, 70);
+        doc.text(`Adresse (Mandant): ${adr_m || 'k.A.'}`, 20, 70);
+        doc.text(`Adresse (Gegenseite): ${adr_g || 'k.A.'}`, 20, 70);
         doc.text(`Aktenzeichen: ${az || 'n.V.'}`, 20, 80);
         doc.text(`Frist: ${frist || 'nicht gesetzt'}`, 20, 90);
         doc.text(`Anteil am Werk: ${ant || '0'}%`, 20, 100);
